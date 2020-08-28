@@ -4,6 +4,11 @@
       "name": "spring.application.version",
       "type": "java.lang.String",
       "description": "The version of the application filtered by maven at build time and exposed as a Spring environment property."
+    },
+    {
+      "name": "spring.application.specificationVersion",
+      "type": "java.lang.String",
+      "description": "The version of the API specification (for compat with official client), see https://gitlab.com/mangadex-pub/mangadex_at_home/-/wikis/Formal-Specification-for-Custom-Clients."
     }
   ]
 }

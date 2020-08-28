@@ -65,6 +65,10 @@ public class PingService {
         LOGGER.info("Received ping response: {}", lastPingResponse);
     }
 
+    public PingResponse getLastPingResponse() {
+        return lastPingResponse;
+    }
+
     private void handleErrorResponse(ResponseEntity<?> responseEntity) {
         switch (responseEntity.getStatusCode()) {
             case UNSUPPORTED_MEDIA_TYPE:

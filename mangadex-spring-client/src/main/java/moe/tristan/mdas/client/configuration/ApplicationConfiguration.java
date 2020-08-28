@@ -21,8 +21,17 @@ import moe.tristan.mdas.webutils.logging.WebRequestsLoggingConfiguration;
 public class ApplicationConfiguration implements WebMvcConfigurer {
 
     @Bean
-    public String applicationVersion(@Value("${spring.application.version}") String version) {
-        return version;
+    public ClientInformation clientInformation(
+        @Value("${spring.application.name}") String applicationName,
+        @Value("${spring.application.version}") String applicationVersion,
+        @Value("${spring.application.specificationVersion}") String specificationVersion
+    ) {
+        return ClientInformation
+            .builder()
+            .applicationName(applicationName)
+            .applicationVersion(applicationVersion)
+            .specificationVersion(specificationVersion)
+            .build();
     }
 
     @Bean

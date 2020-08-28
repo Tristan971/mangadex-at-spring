@@ -1,4 +1,4 @@
-open module moe.tristan.mdas.mangadex.api {
+open module moe.tristan.mdas.api {
 
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
@@ -9,5 +9,6 @@ open module moe.tristan.mdas.mangadex.api {
 
     exports moe.tristan.mdas.api.ping;
     exports moe.tristan.mdas.api.stop;
+    exports moe.tristan.mdas.api.image;
 
 }

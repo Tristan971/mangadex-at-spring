@@ -2,6 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -9,17 +11,24 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>moe.tristan</groupId>
-    <artifactId>mangadex-at-spring</artifactId>
-    <version>${revision}</version>
+    <groupId>moe.tristan.mdas</groupId>
+    <artifactId>mangadex-at-spring-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
-    <name>mangadex-at-spring</name>
+    <name>mangadex-at-spring-parent</name>
     <description>Mangadex@Home unofficial client</description>
+
+    <modules>
+        <module>mangadex-api</module>
+        <module>mangadex-spring-client</module>
+        <module>mangadex-spring-server</module>
+        <module>mangadex-spring-web-utils</module>
+    </modules>
 
     <properties>
         <!-- Fake version overriden at CI build time -->
-        <revision>0.0.0-SNAPSHOT</revision>
         <java.version>14</java.version>
+        <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
 
         <immutables.version>2.8.8</immutables.version>
     </properties>
@@ -34,7 +43,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
-                <configuration>
+                <configuration combine.self="append">
                     <release>${java.version}</release>
                     <annotationProcessorPaths>
                         <dependency>
@@ -45,12 +54,12 @@
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-configuration-processor</artifactId>
-                            <version>${project.parent.version}</version>
+                            <version>${spring-boot.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>org.springframework.boot</groupId>
                             <artifactId>spring-boot-autoconfigure-processor</artifactId>
-                            <version>${project.parent.version}</version>
+                            <version>${spring-boot.version}</version>
                         </dependency>
                     </annotationProcessorPaths>
                 </configuration>

@@ -3,6 +3,7 @@ package moe.tristan.mdas.api.ping;
 import java.net.URL;
 
 import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Redacted;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.treatwell.immutables.styles.ValueObjectStyle;
@@ -46,6 +47,7 @@ abstract class AbstractPingResponse {
     /**
      * @return the TLS signing information
      */
+    @Redacted
     public abstract TlsData getTls();
 
 }

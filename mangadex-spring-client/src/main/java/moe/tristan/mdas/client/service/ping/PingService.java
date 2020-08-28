@@ -36,8 +36,6 @@ public class PingService {
     }
 
     public void ping() {
-        LOGGER.info("Ping...");
-
         Optional<ZonedDateTime> lastPingTlsCreatedAt = Optional
             .ofNullable(lastPingResponse)
             .map(PingResponse::getTls)
@@ -59,13 +57,12 @@ public class PingService {
             PingResponse.class
         );
 
-        LOGGER.info("... Pong!");
-
         if (!response.getStatusCode().is2xxSuccessful()) {
             handleErrorResponse(response);
         }
 
         lastPingResponse = response.getBody();
+        LOGGER.info("Received ping response: {}", lastPingResponse);
     }
 
     private void handleErrorResponse(ResponseEntity<?> responseEntity) {

@@ -16,6 +16,9 @@ import org.springframework.http.client.ClientHttpResponse;
 
 public class RequestsLogger {
 
+    private static final String INCOMING = "⬅";
+    private static final String OUTGOING = "➡";
+
     private final Logger logger;
 
     public RequestsLogger(Class<?> clazz) {
@@ -24,13 +27,13 @@ public class RequestsLogger {
 
     public long logStarted(HttpServletRequest httpServletRequest) {
         long start = Instant.now().toEpochMilli();
-        logger.info("{} begin", getMethodAndPath(httpServletRequest));
+        logger.info("{} {} begin", INCOMING, getMethodAndPath(httpServletRequest));
         return start;
     }
 
     public long logStarted(HttpRequest clientHttpRequest) {
         long start = Instant.now().toEpochMilli();
-        logger.info("{} begin", getMethodAndPath(clientHttpRequest));
+        logger.info("{} {} begin", OUTGOING, getMethodAndPath(clientHttpRequest));
         return start;
     }
 
@@ -43,11 +46,11 @@ public class RequestsLogger {
         requireNonNull(statusCode, "null status code resolved for: " + responseStatus);
 
         if (statusCode.is2xxSuccessful()) {
-            logger.info("{} {} ({} ms)", getMethodAndPath(request), responseStatus, elapsed);
+            logger.info("{} {} {} ({} ms)", OUTGOING, getMethodAndPath(request), responseStatus, elapsed);
         } else if (statusCode.is4xxClientError()) {
-            logger.warn("{} {} ({} ms)", getMethodAndPath(request), responseStatus, elapsed);
+            logger.warn("{} {} {} ({} ms)", OUTGOING, getMethodAndPath(request), responseStatus, elapsed);
         } else if (statusCode.is5xxServerError()) {
-            logger.error("{} {} ({} ms)", getMethodAndPath(request), responseStatus, elapsed);
+            logger.error("{} {} {} ({} ms)", OUTGOING, getMethodAndPath(request), responseStatus, elapsed);
         }
     }
 
@@ -59,11 +62,11 @@ public class RequestsLogger {
         HttpStatus statusCode = response.getStatusCode();
 
         if (statusCode.is2xxSuccessful()) {
-            logger.info("{} {} ({} ms)", getMethodAndPath(request), responseStatus, elapsed);
+            logger.info("{} {} {} ({} ms)", INCOMING, getMethodAndPath(request), responseStatus, elapsed);
         } else if (statusCode.is4xxClientError()) {
-            logger.warn("{} {} ({} ms)", getMethodAndPath(request), responseStatus, elapsed);
+            logger.warn("{} {} {} ({} ms)", INCOMING, getMethodAndPath(request), responseStatus, elapsed);
         } else if (statusCode.is5xxServerError()) {
-            logger.error("{} {} ({} ms)", getMethodAndPath(request), responseStatus, elapsed);
+            logger.error("{} {} {} ({} ms)", INCOMING, getMethodAndPath(request), responseStatus, elapsed);
         }
     }
 

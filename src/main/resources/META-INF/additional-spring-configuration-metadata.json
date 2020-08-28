@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "spring.application.version",
+      "type": "java.lang.String",
+      "description": "The version of the application filtered by maven at build time and exposed as a Spring environment property."
+    }
+  ]
+}

@@ -16,6 +16,8 @@ import moe.tristan.mdas.api.ping.TlsData;
 @RestController
 public class PingController {
 
+    private static final ZonedDateTime CREATED_AT = ZonedDateTime.now(ZoneOffset.UTC);
+
     @PostMapping("/ping")
     PingResponse ping(@RequestBody PingRequest pingRequest) throws MalformedURLException {
         return PingResponse
@@ -31,7 +33,7 @@ public class PingController {
                     .builder()
                     .certificate("certificate")
                     .privateKey("private-key")
-                    .createdAt(ZonedDateTime.now(ZoneOffset.UTC))
+                    .createdAt(CREATED_AT)
                     .build()
             )
             .build();

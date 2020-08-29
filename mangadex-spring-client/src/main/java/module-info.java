@@ -9,8 +9,6 @@ open module moe.tristan.mdas.client {
     requires spring.context;
     requires spring.web;
     requires spring.webmvc;
-    requires spring.security.web;
-    requires spring.security.config;
 
     requires org.slf4j;
 
@@ -18,9 +16,5 @@ open module moe.tristan.mdas.client {
     requires com.fasterxml.jackson.annotation;
     requires org.immutables.value;
     requires immutables.styles;
-
-    requires org.apache.tomcat.embed.core;
-    // tomcat ssl support uses sun.misc.Unsafe...
-    requires jdk.unsupported;
 
 }

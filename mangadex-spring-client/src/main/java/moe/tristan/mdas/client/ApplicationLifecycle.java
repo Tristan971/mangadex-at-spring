@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import moe.tristan.mdas.client.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.client.service.ping.PingService;
+import moe.tristan.mdas.client.service.ssl.SslCertsUpdater;
 import moe.tristan.mdas.client.service.stop.StopService;
 
 @Component
@@ -22,13 +23,20 @@ public class ApplicationLifecycle implements SmartLifecycle {
 
     private final PingService pingService;
     private final StopService stopService;
+    private final SslCertsUpdater sslCertsUpdater;
     private final int pingFrequencySeconds;
 
     private final AtomicBoolean running;
 
-    public ApplicationLifecycle(PingService pingService, StopService stopService, ClientConfigurationProperties clientConfigurationProperties) {
+    public ApplicationLifecycle(
+        PingService pingService,
+        StopService stopService,
+        SslCertsUpdater sslCertsUpdater,
+        ClientConfigurationProperties clientConfigurationProperties
+    ) {
         this.pingService = pingService;
         this.stopService = stopService;
+        this.sslCertsUpdater = sslCertsUpdater;
         this.pingFrequencySeconds = clientConfigurationProperties.getPingFrequencySeconds();
         this.running = new AtomicBoolean(false);
     }
@@ -37,6 +45,7 @@ public class ApplicationLifecycle implements SmartLifecycle {
     public void start() {
         LOGGER.info("Application is starting.");
         pingService.ping();
+        sslCertsUpdater.loadSslCertificate();
         running.set(true);
 
         PING_SERVICE.scheduleAtFixedRate(

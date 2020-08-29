@@ -4,7 +4,7 @@ open module moe.tristan.mdas.webutils {
     requires spring.web;
     requires spring.webmvc;
 
-    requires org.apache.tomcat.embed.core;
+    requires java.servlet;
 
     requires org.slf4j;
     requires spring.boot;

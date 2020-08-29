@@ -2,6 +2,7 @@ package moe.tristan.mdas.client.service.ping;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class PingService {
     private final URI pingEndpoint;
     private final RestTemplate restTemplate;
 
-    private PingResponse lastPingResponse;
+    private PingResponse previousPingResponse;
 
     public PingService(ServerConfigurationProperties serverConfigurationProperties, RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -37,7 +38,7 @@ public class PingService {
 
     public void ping() {
         Optional<ZonedDateTime> lastPingTlsCreatedAt = Optional
-            .ofNullable(lastPingResponse)
+            .ofNullable(previousPingResponse)
             .map(PingResponse::getTls)
             .map(TlsData::getCreatedAt);
 
@@ -61,12 +62,15 @@ public class PingService {
             handleErrorResponse(response);
         }
 
-        lastPingResponse = response.getBody();
-        LOGGER.info("Received ping response: {}", lastPingResponse);
+        PingResponse newPingResponse = Objects.requireNonNull(response.getBody(), "null ping response from server!");
+        if (!newPingResponse.equals(previousPingResponse)) {
+            LOGGER.info("New ping response: {}", newPingResponse);
+            previousPingResponse = newPingResponse;
+        }
     }
 
-    public PingResponse getLastPingResponse() {
-        return lastPingResponse;
+    public PingResponse getPreviousPingResponse() {
+        return previousPingResponse;
     }
 
     private void handleErrorResponse(ResponseEntity<?> responseEntity) {

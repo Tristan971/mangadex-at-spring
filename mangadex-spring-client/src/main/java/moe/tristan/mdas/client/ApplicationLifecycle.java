@@ -45,7 +45,7 @@ public class ApplicationLifecycle implements SmartLifecycle {
     public void start() {
         LOGGER.info("Application is starting.");
         pingService.ping();
-        sslCertsUpdater.loadSslCertificate();
+        sslCertsUpdater.loadCertificates();
         running.set(true);
 
         PING_SERVICE.scheduleAtFixedRate(

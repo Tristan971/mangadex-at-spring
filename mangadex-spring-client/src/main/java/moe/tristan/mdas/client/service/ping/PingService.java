@@ -25,6 +25,7 @@ public class PingService {
     private final URI pingEndpoint;
     private final RestTemplate restTemplate;
 
+    private TlsData lastTlsData;
     private PingResponse previousPingResponse;
 
     public PingService(ServerConfigurationProperties serverConfigurationProperties, RestTemplate restTemplate) {
@@ -37,19 +38,15 @@ public class PingService {
     }
 
     public void ping() {
-        Optional<ZonedDateTime> lastPingTlsCreatedAt = Optional
-            .ofNullable(previousPingResponse)
-            .map(PingResponse::getTls)
-            .map(TlsData::getCreatedAt);
+        Optional<ZonedDateTime> lastTlsCreatedAt = Optional.ofNullable(lastTlsData).map(TlsData::getCreatedAt);
 
         PingRequest request = PingRequest
             .builder()
             .secret("secret")
             .port(0)
-            .diskSpace(1000000)
-            .networkSpeed(1000000)
-            .buildVersion("0")
-            .tlsCreatedAt(lastPingTlsCreatedAt)
+            .diskSpace(0)
+            .networkSpeed(0)
+            .tlsCreatedAt(lastTlsCreatedAt)
             .build();
 
         ResponseEntity<PingResponse> response = restTemplate.postForEntity(
@@ -65,8 +62,12 @@ public class PingService {
         PingResponse newPingResponse = Objects.requireNonNull(response.getBody(), "null ping response from server!");
         if (!newPingResponse.equals(previousPingResponse)) {
             LOGGER.info("New ping response: {}", newPingResponse);
-            previousPingResponse = newPingResponse;
         }
+        if (newPingResponse.getTls().isPresent()) {
+            LOGGER.info("New tls data received!");
+            lastTlsData = newPingResponse.getTls().get();
+        }
+        previousPingResponse = newPingResponse;
     }
 
     public PingResponse getPreviousPingResponse() {

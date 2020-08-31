@@ -1,7 +1,7 @@
 package moe.tristan.mdas.api.ping;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
-import static com.fasterxml.jackson.databind.util.StdDateFormat.DATE_FORMAT_STR_ISO8601;
+import static moe.tristan.mdas.api.Constants.TIMESTAMP_FORMAT;
 
 import java.time.ZonedDateTime;
 
@@ -19,7 +19,7 @@ abstract class AbstractTlsData {
      * @return a timestamp in RFC-3339 used in following {@link PingRequest}s.
      */
     @JsonProperty("created_at")
-    @JsonFormat(shape = STRING, pattern = DATE_FORMAT_STR_ISO8601)
+    @JsonFormat(shape = STRING, pattern = TIMESTAMP_FORMAT)
     public abstract ZonedDateTime getCreatedAt();
 
     /**

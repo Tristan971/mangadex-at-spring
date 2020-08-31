@@ -1,9 +1,10 @@
 package moe.tristan.mdas.api.ping;
 
 import java.net.URL;
+import java.util.Optional;
 
+import org.immutables.value.Value.Auxiliary;
 import org.immutables.value.Value.Immutable;
-import org.immutables.value.Value.Redacted;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.treatwell.immutables.styles.ValueObjectStyle;
@@ -32,6 +33,7 @@ abstract class AbstractPingResponse {
     /**
      * @return a base64 encoded key that is the shared key for token decoding
      */
+    @JsonProperty("token_key")
     public abstract String getTokenKey();
 
     /**
@@ -47,7 +49,7 @@ abstract class AbstractPingResponse {
     /**
      * @return the TLS signing information
      */
-    @Redacted
-    public abstract TlsData getTls();
+    @Auxiliary
+    public abstract Optional<TlsData> getTls();
 
 }

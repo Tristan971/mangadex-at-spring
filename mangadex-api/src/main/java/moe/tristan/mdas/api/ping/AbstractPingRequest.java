@@ -1,16 +1,19 @@
 package moe.tristan.mdas.api.ping;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
-import static com.fasterxml.jackson.databind.util.StdDateFormat.DATE_FORMAT_STR_ISO8601;
+import static moe.tristan.mdas.api.Constants.TIMESTAMP_FORMAT;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import org.immutables.value.Value.Derived;
 import org.immutables.value.Value.Immutable;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.treatwell.immutables.styles.ValueObjectStyle;
+
+import moe.tristan.mdas.api.Constants;
 
 @Immutable
 @ValueObjectStyle
@@ -41,14 +44,17 @@ abstract class AbstractPingRequest {
     /**
      * @return the client's build version
      */
+    @Derived
     @JsonProperty("build_version")
-    public abstract String getBuildVersion();
+    public int getBuildVersion() {
+        return Constants.BUILD_VERSION;
+    }
 
     /**
      * @return the TLS timestamp from the previous ping
      */
     @JsonProperty("tls_created_at")
-    @JsonFormat(shape = STRING, pattern = DATE_FORMAT_STR_ISO8601)
+    @JsonFormat(shape = STRING, pattern = TIMESTAMP_FORMAT)
     public abstract Optional<ZonedDateTime> getTlsCreatedAt();
 
 }

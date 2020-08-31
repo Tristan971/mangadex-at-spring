@@ -22,6 +22,7 @@ public class ApplicationLifecycle implements SmartLifecycle {
 
     private final PingService pingService;
     private final StopService stopService;
+    private final KeyStoreInitializer keyStoreInitializer;
     private final int pingFrequencySeconds;
 
     private final AtomicBoolean running;
@@ -29,10 +30,12 @@ public class ApplicationLifecycle implements SmartLifecycle {
     public ApplicationLifecycle(
         PingService pingService,
         StopService stopService,
+        KeyStoreInitializer keyStoreInitializer,
         ClientConfigurationProperties clientConfigurationProperties
     ) {
         this.pingService = pingService;
         this.stopService = stopService;
+        this.keyStoreInitializer = keyStoreInitializer;
         this.pingFrequencySeconds = clientConfigurationProperties.getPingFrequencySeconds();
         this.running = new AtomicBoolean(false);
     }
@@ -41,7 +44,7 @@ public class ApplicationLifecycle implements SmartLifecycle {
     public void start() {
         LOGGER.info("Application is starting.");
         pingService.ping();
-        KeyStoreInitializer.injectCertificates(pingService.getLastTlsData());
+        keyStoreInitializer.injectCertificates(pingService.getLastTlsData());
         running.set(true);
 
         PING_SERVICE.scheduleAtFixedRate(

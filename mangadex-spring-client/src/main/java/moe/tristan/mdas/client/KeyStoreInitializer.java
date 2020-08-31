@@ -19,16 +19,23 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.stereotype.Component;
 
 import moe.tristan.mdas.api.ping.TlsData;
 
-public class KeyStoreInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+@Component
+public class KeyStoreInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext>, JettyServerCustomizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyStoreInitializer.class);
 
@@ -37,6 +44,8 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
 
     private static Path KEY_STORE_PATH;
     private static KeyStore KEY_STORE;
+
+    private Server server;
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -47,7 +56,7 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
         registerKeystoreInContext(applicationContext.getEnvironment(), KEY_STORE_PATH);
     }
 
-    public static void injectCertificates(TlsData tlsData) {
+    public void injectCertificates(TlsData tlsData) {
         try (
             InputStream certificatesInputStream = new ByteArrayInputStream(tlsData.getCertificate().getBytes());
             OutputStream keystoreOutputStream = new FileOutputStream(KEY_STORE_PATH.toAbsolutePath().toFile())
@@ -61,11 +70,25 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
 
             for (Certificate certificate : certificates) {
                 String name = ((X509Certificate) certificate).getSubjectDN().getName();
+                if (name.contains("mangadex")) {
+                    name = "mangadex";
+                }
+
                 ks.setCertificateEntry(name, certificate);
                 LOGGER.info("Imported certificate {}", name);
             }
 
             ks.store(keystoreOutputStream, KEY_STORE_PASS.toCharArray());
+
+            Connector connector = server.getConnectors()[0];
+            connector.stop();
+
+            SslConnectionFactory sslConnectionFactory = connector.getBean(SslConnectionFactory.class);
+            SslContextFactory sslContextFactory = sslConnectionFactory.getSslContextFactory();
+            sslContextFactory.setCertAlias("mangadex");
+
+            connector.start();
+            LOGGER.info("Restarted Jetty connector!");
         } catch (CertificateException e) {
             throw new IllegalStateException("Cannot create X509 certificate factory!", e);
         } catch (IOException e) {
@@ -74,6 +97,8 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
             throw new IllegalStateException("Cannot open KeyStore!", e);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Cannot store KeyStore!", e);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Failed to restart Jetty!", exception);
         }
     }
 
@@ -110,6 +135,11 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
         MapPropertySource sslProperties = new MapPropertySource("ssl-properties", sslPropertiesMap);
 
         environment.getPropertySources().addFirst(sslProperties);
+    }
+
+    @Override
+    public void customize(Server server) {
+        this.server = server;
     }
 
 }

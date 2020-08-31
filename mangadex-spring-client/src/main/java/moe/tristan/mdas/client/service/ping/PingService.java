@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import moe.tristan.mdas.api.ping.PingRequest;
 import moe.tristan.mdas.api.ping.PingResponse;
 import moe.tristan.mdas.api.ping.TlsData;
+import moe.tristan.mdas.client.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.client.configuration.ServerConfigurationProperties;
 
 @Service
@@ -24,12 +25,18 @@ public class PingService {
 
     private final URI pingEndpoint;
     private final RestTemplate restTemplate;
+    private final ClientConfigurationProperties clientConfigurationProperties;
 
     private TlsData lastTlsData;
-    private PingResponse previousPingResponse;
+    private PingResponse lastPingResponse;
 
-    public PingService(ServerConfigurationProperties serverConfigurationProperties, RestTemplate restTemplate) {
+    public PingService(
+        RestTemplate restTemplate,
+        ServerConfigurationProperties serverConfigurationProperties,
+        ClientConfigurationProperties clientConfigurationProperties
+    ) {
         this.restTemplate = restTemplate;
+        this.clientConfigurationProperties = clientConfigurationProperties;
         this.pingEndpoint = UriComponentsBuilder
             .fromUri(serverConfigurationProperties.getControlServerUrl())
             .path("/ping")
@@ -42,7 +49,7 @@ public class PingService {
 
         PingRequest request = PingRequest
             .builder()
-            .secret("secret")
+            .secret(clientConfigurationProperties.getSecret())
             .port(0)
             .diskSpace(0)
             .networkSpeed(0)
@@ -60,18 +67,22 @@ public class PingService {
         }
 
         PingResponse newPingResponse = Objects.requireNonNull(response.getBody(), "null ping response from server!");
-        if (!newPingResponse.equals(previousPingResponse)) {
+        if (!newPingResponse.equals(lastPingResponse)) {
             LOGGER.info("New ping response: {}", newPingResponse);
         }
         if (newPingResponse.getTls().isPresent()) {
             LOGGER.info("New tls data received!");
             lastTlsData = newPingResponse.getTls().get();
         }
-        previousPingResponse = newPingResponse;
+        lastPingResponse = newPingResponse;
     }
 
-    public PingResponse getPreviousPingResponse() {
-        return previousPingResponse;
+    public PingResponse getLastPingResponse() {
+        return lastPingResponse;
+    }
+
+    public TlsData getLastTlsData() {
+        return lastTlsData;
     }
 
     private void handleErrorResponse(ResponseEntity<?> responseEntity) {

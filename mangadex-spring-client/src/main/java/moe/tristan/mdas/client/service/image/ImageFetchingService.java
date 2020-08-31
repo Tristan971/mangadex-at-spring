@@ -38,7 +38,7 @@ public class ImageFetchingService {
     }
 
     public byte[] serve(ImageMode imageMode, String chapterHash, String fileName) {
-        String imageServer = pingService.getPreviousPingResponse().getImageServer();
+        String imageServer = pingService.getLastPingResponse().getImageServer();
 
         URI serverSideUri = UriComponentsBuilder
             .fromHttpUrl(imageServer)

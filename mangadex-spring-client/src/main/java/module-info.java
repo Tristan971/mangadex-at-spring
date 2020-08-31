@@ -20,5 +20,6 @@ open module moe.tristan.mdas.client {
     requires immutables.styles;
     requires spring.core;
     requires org.eclipse.jetty.util;
+    requires org.eclipse.jetty.io;
 
 }

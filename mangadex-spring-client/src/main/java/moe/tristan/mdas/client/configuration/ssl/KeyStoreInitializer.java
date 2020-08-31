@@ -1,4 +1,4 @@
-package moe.tristan.mdas.client;
+package moe.tristan.mdas.client.configuration.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
@@ -13,18 +13,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
+import org.eclipse.jetty.io.ssl.SslHandshakeListener;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -46,6 +45,7 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
     private static KeyStore KEY_STORE;
 
     private Server server;
+    private SslHandshakeListener sslHandshakeListener;
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -61,22 +61,14 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
             InputStream certificatesInputStream = new ByteArrayInputStream(tlsData.getCertificate().getBytes());
             OutputStream keystoreOutputStream = new FileOutputStream(KEY_STORE_PATH.toAbsolutePath().toFile())
         ) {
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
-            Collection<? extends Certificate> certificates = certificateFactory.generateCertificates(certificatesInputStream);
-            LOGGER.info("Importing {} certificates", certificates.size());
+            Certificate certificate = certificateFactory.generateCertificate(certificatesInputStream);
 
             KeyStore ks = KEY_STORE;
 
-            for (Certificate certificate : certificates) {
-                String name = ((X509Certificate) certificate).getSubjectDN().getName();
-                if (name.contains("mangadex")) {
-                    name = "mangadex";
-                }
-
-                ks.setCertificateEntry(name, certificate);
-                LOGGER.info("Imported certificate {}", name);
-            }
+            ks.setCertificateEntry("certificate", certificate);
+            ks.setKeyEntry("private-key", tlsData.getPrivateKey().getBytes(), new Certificate[]{certificate});
 
             ks.store(keystoreOutputStream, KEY_STORE_PASS.toCharArray());
 
@@ -84,8 +76,7 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
             connector.stop();
 
             SslConnectionFactory sslConnectionFactory = connector.getBean(SslConnectionFactory.class);
-            SslContextFactory sslContextFactory = sslConnectionFactory.getSslContextFactory();
-            sslContextFactory.setCertAlias("mangadex");
+            sslConnectionFactory.addBean(sslHandshakeListener);
 
             connector.start();
             LOGGER.info("Restarted Jetty connector!");
@@ -140,6 +131,11 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
     @Override
     public void customize(Server server) {
         this.server = server;
+    }
+
+    @Autowired
+    public void setSslHandshakeListener(SslHandshakeListener sslHandshakeListener) {
+        this.sslHandshakeListener = sslHandshakeListener;
     }
 
 }

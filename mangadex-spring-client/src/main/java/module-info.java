@@ -22,4 +22,7 @@ open module moe.tristan.mdas.client {
     requires org.eclipse.jetty.util;
     requires org.eclipse.jetty.io;
 
+    requires bcprov.jdk15on;
+    requires bcpkix.jdk15on;
+
 }

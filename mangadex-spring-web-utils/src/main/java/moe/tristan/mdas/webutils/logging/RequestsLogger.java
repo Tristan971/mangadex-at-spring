@@ -72,7 +72,7 @@ public class RequestsLogger {
 
     private String getMethodAndPath(HttpServletRequest httpServletRequest) {
         return String.format(
-            "%s %s://%s%s%s%s",
+            "%s %s://%s:%s%s%s",
             httpServletRequest.getMethod(),
             httpServletRequest.isSecure() ? "https" : "http",
             httpServletRequest.getServerName(),

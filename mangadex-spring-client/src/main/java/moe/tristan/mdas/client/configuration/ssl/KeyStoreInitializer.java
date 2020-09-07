@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -68,7 +70,9 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
             KeyStore ks = KEY_STORE;
 
             ks.setCertificateEntry("certificate", certificate);
-            ks.setKeyEntry("private-key", tlsData.getPrivateKey().getBytes(), new Certificate[]{certificate});
+
+            PrivateKey privateKey = Pkcs1Loader.parse(tlsData.getPrivateKey());
+            ks.setKeyEntry("private-key", privateKey, null, new Certificate[]{certificate});
 
             ks.store(keystoreOutputStream, KEY_STORE_PASS.toCharArray());
 
@@ -103,7 +107,7 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
 
     private KeyStore generateEmptyKeyStore(Path keystorePath) {
         try (OutputStream keystoreOutputStream = new FileOutputStream(keystorePath.toAbsolutePath().toFile())) {
-            KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE);
+            KeyStore ks = KeyStore.getInstance(KEY_STORE_TYPE, "BC");
             ks.load(null, KEY_STORE_PASS.toCharArray());
             ks.store(keystoreOutputStream, KEY_STORE_PASS.toCharArray());
             LOGGER.info("Created empty {} KeyStore at {} with pass {}", KEY_STORE_TYPE, keystorePath, KEY_STORE_PASS);
@@ -112,6 +116,8 @@ public class KeyStoreInitializer implements ApplicationContextInitializer<Config
             throw new IllegalStateException("Could not create KeyStore!", e);
         } catch (CertificateException | IOException | NoSuchAlgorithmException e) {
             throw new IllegalStateException("Could not initialize KeyStore!", e);
+        } catch (NoSuchProviderException e) {
+            throw new IllegalStateException("Invalid provider!", e);
         }
     }
 

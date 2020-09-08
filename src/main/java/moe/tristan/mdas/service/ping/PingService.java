@@ -9,6 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
+import org.springframework.web.client.HttpClientErrorException.Forbidden;
+import org.springframework.web.client.HttpClientErrorException.Unauthorized;
+import org.springframework.web.client.HttpClientErrorException.UnsupportedMediaType;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -55,25 +59,33 @@ public class PingService {
             .tlsCreatedAt(lastTlsCreatedAt)
             .build();
 
-        ResponseEntity<PingResponse> response = restTemplate.postForEntity(
-            pingEndpoint,
-            request,
-            PingResponse.class
-        );
+        try {
+            ResponseEntity<PingResponse> response = restTemplate.postForEntity(
+                pingEndpoint,
+                request,
+                PingResponse.class
+            );
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            handleErrorResponse(response);
+            PingResponse newPingResponse = Objects.requireNonNull(response.getBody(), "null ping response from server!");
+            if (!newPingResponse.equals(lastPingResponse)) {
+                LOGGER.info("New ping response: {}", newPingResponse);
+            }
+            if (newPingResponse.getTls().isPresent()) {
+                LOGGER.info("New tls data received!");
+                lastTlsData = newPingResponse.getTls().get();
+            }
+            lastPingResponse = newPingResponse;
+        } catch (Unauthorized e) {
+            throw new IllegalStateException("Unauthorized! Either your secret is wrong, or your server was marked as compromised!");
+        } catch (UnsupportedMediaType e) {
+            throw new IllegalStateException("Content-Type was not set to application/json");
+        } catch (BadRequest e) {
+            throw new IllegalStateException("Json body was malformed!");
+        } catch (Forbidden e) {
+            throw new IllegalStateException("Secret is not valid anymore!");
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected exception!", e);
         }
-
-        PingResponse newPingResponse = Objects.requireNonNull(response.getBody(), "null ping response from server!");
-        if (!newPingResponse.equals(lastPingResponse)) {
-            LOGGER.info("New ping response: {}", newPingResponse);
-        }
-        if (newPingResponse.getTls().isPresent()) {
-            LOGGER.info("New tls data received!");
-            lastTlsData = newPingResponse.getTls().get();
-        }
-        lastPingResponse = newPingResponse;
     }
 
     public PingResponse getLastPingResponse() {
@@ -82,19 +94,6 @@ public class PingService {
 
     public TlsData getLastTlsData() {
         return lastTlsData;
-    }
-
-    private void handleErrorResponse(ResponseEntity<?> responseEntity) {
-        switch (responseEntity.getStatusCode()) {
-            case UNSUPPORTED_MEDIA_TYPE:
-                throw new IllegalStateException("Content-Type was not set to application/json");
-            case BAD_REQUEST:
-                throw new IllegalStateException("Json body was malformed!");
-            case FORBIDDEN:
-                throw new IllegalStateException("Secret is not valid anymore!");
-            default:
-                throw new RuntimeException("Unexpected exception: " + responseEntity);
-        }
     }
 
 }

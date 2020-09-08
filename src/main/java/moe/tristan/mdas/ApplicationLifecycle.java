@@ -52,7 +52,7 @@ public class ApplicationLifecycle implements SmartLifecycle {
                     LOGGER.error("Could not ping control server.", e);
                 }
             },
-            0,   // initial delay
+            15,  // initial delay (since we manually invoke it earlier, this is the second request)
             15,  // executed every X seconds hereafter
             TimeUnit.SECONDS
         );

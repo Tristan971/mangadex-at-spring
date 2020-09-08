@@ -25,6 +25,8 @@
     </properties>
 
     <build>
+        <finalName>mangadex-at-spring</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

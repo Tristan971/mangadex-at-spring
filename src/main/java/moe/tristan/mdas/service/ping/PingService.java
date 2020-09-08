@@ -54,7 +54,7 @@ public class PingService {
             .builder()
             .secret(clientConfigurationProperties.getSecret())
             .port(clientConfigurationProperties.getPort())
-            .diskSpace(clientConfigurationProperties.getMaxCacheSizeMegabytes())
+            .diskSpace(clientConfigurationProperties.getCache().getMaxSizeMegabytes())
             .networkSpeed(clientConfigurationProperties.getMaxNetworkSpeedKilobytesPerSecond())
             .tlsCreatedAt(lastTlsCreatedAt)
             .build();

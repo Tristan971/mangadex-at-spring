@@ -10,8 +10,41 @@ public class ClientConfigurationProperties {
 
     private String secret;
     private int port;
-    private int maxCacheSizeMegabytes;
     private int maxNetworkSpeedKilobytesPerSecond;
+
+    private Cache cache;
+
+    public static class Cache {
+
+        private String directory;
+        private String databaseFile;
+        private int maxSizeMegabytes;
+
+        public int getMaxSizeMegabytes() {
+            return maxSizeMegabytes;
+        }
+
+        public void setMaxSizeMegabytes(int maxSizeMegabytes) {
+            this.maxSizeMegabytes = maxSizeMegabytes;
+        }
+
+        public String getDatabaseFile() {
+            return databaseFile;
+        }
+
+        public void setDatabaseFile(String databaseFile) {
+            this.databaseFile = databaseFile;
+        }
+
+        public String getDirectory() {
+            return directory;
+        }
+
+        public void setDirectory(String directory) {
+            this.directory = directory;
+        }
+
+    }
 
     /*
      * Boilerplate getters/setters ; unfortunately needed here
@@ -33,20 +66,20 @@ public class ClientConfigurationProperties {
         this.port = port;
     }
 
-    public int getMaxCacheSizeMegabytes() {
-        return maxCacheSizeMegabytes;
-    }
-
-    public void setMaxCacheSizeMegabytes(int maxCacheSizeMegabytes) {
-        this.maxCacheSizeMegabytes = maxCacheSizeMegabytes;
-    }
-
     public int getMaxNetworkSpeedKilobytesPerSecond() {
         return maxNetworkSpeedKilobytesPerSecond;
     }
 
     public void setMaxNetworkSpeedKilobytesPerSecond(int maxNetworkSpeedKilobytesPerSecond) {
         this.maxNetworkSpeedKilobytesPerSecond = maxNetworkSpeedKilobytesPerSecond;
+    }
+
+    public Cache getCache() {
+        return cache;
+    }
+
+    public void setCache(Cache cache) {
+        this.cache = cache;
     }
 
 }

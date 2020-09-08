@@ -1,1 +1,0 @@
-org.springframework.context.ApplicationContextInitializer=moe.tristan.mdas.client.configuration.ssl.KeyStoreInitializer

@@ -2,8 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -12,18 +10,11 @@
     </parent>
 
     <groupId>moe.tristan.mdas</groupId>
-    <artifactId>mangadex-at-spring-parent</artifactId>
+    <artifactId>mangadex-at-spring</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>mangadex-at-spring-parent</name>
+    <name>mangadex-at-spring</name>
     <description>Mangadex@Home unofficial client</description>
-
-    <modules>
-        <module>mangadex-api</module>
-        <module>mangadex-spring-client</module>
-        <module>mangadex-spring-server</module>
-        <module>mangadex-spring-web-utils</module>
-    </modules>
 
     <properties>
         <!-- Fake version overriden at CI build time -->
@@ -115,11 +106,6 @@
             <artifactId>spring-boot-devtools</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
-        </dependency>
-
         <!-- Misc -->
         <dependency>
             <groupId>org.immutables</groupId>
@@ -130,6 +116,11 @@
             <groupId>com.treatwell</groupId>
             <artifactId>immutables-styles</artifactId>
             <version>2.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.58</version>
         </dependency>
 
         <dependency>

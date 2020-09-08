@@ -18,6 +18,8 @@ import moe.tristan.mdas.api.ping.TlsData;
 import moe.tristan.mdas.client.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.client.configuration.ServerConfigurationProperties;
 
+import io.micrometer.core.annotation.Timed;
+
 @Service
 public class PingService {
 
@@ -44,6 +46,7 @@ public class PingService {
             .toUri();
     }
 
+    @Timed
     public void ping() {
         Optional<ZonedDateTime> lastTlsCreatedAt = Optional.ofNullable(lastTlsData).map(TlsData::getCreatedAt);
 

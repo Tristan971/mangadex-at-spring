@@ -34,4 +34,10 @@ open module moe.tristan.mdas.client {
     requires bcprov.jdk15on;
     requires bcpkix.jdk15on;
 
+    // manual micrometer usage
+    requires micrometer.core;
+
+    // allows Objenesis to use unsupported jdk stuff, notably for TimedAspect
+    requires jdk.unsupported;
+
 }

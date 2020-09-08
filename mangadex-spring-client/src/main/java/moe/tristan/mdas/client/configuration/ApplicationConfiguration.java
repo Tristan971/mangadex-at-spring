@@ -12,6 +12,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import moe.tristan.mdas.webutils.logging.OutgoingRequestsMetricsClientInterceptor;
 import moe.tristan.mdas.webutils.logging.WebRequestsLoggingConfiguration;
 
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
+
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(value = {
     ClientConfigurationProperties.class,
@@ -42,6 +45,11 @@ public class ApplicationConfiguration implements WebMvcConfigurer {
         return restTemplateBuilder
             .additionalInterceptors(outgoingRequestsMetricsClientInterceptor)
             .build();
+    }
+
+    @Bean
+    public TimedAspect timedAspect(MeterRegistry meterRegistry) {
+        return new TimedAspect(meterRegistry);
     }
 
 }

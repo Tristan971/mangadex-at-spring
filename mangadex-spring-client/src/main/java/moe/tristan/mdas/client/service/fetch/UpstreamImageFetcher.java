@@ -19,6 +19,8 @@ import moe.tristan.mdas.api.image.ImageMode;
 import moe.tristan.mdas.client.configuration.ClientInformation;
 import moe.tristan.mdas.client.service.ping.PingService;
 
+import io.micrometer.core.annotation.Timed;
+
 @Service
 public class UpstreamImageFetcher {
 
@@ -37,6 +39,7 @@ public class UpstreamImageFetcher {
         this.restTemplate = restTemplate;
     }
 
+    @Timed
     public byte[] download(ImageMode imageMode, String chapterHash, String fileName) {
         String imageServer = pingService.getLastPingResponse().getImageServer();
 

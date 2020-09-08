@@ -1,4 +1,4 @@
-package moe.tristan.mdas.client.service.image;
+package moe.tristan.mdas.client.service.fetch;
 
 import static java.util.Objects.requireNonNull;
 
@@ -20,7 +20,7 @@ import moe.tristan.mdas.client.configuration.ClientInformation;
 import moe.tristan.mdas.client.service.ping.PingService;
 
 @Service
-public class ImageFetchingService {
+public class UpstreamImageFetcher {
 
     private static final Map<ImageMode, String> IMAGE_MODE_PATHS = Map.of(
         ImageMode.DATA, "/data",
@@ -31,13 +31,13 @@ public class ImageFetchingService {
     private final ClientInformation clientInformation;
     private final RestTemplate restTemplate;
 
-    public ImageFetchingService(PingService pingService, ClientInformation clientInformation, RestTemplate restTemplate) {
+    public UpstreamImageFetcher(PingService pingService, ClientInformation clientInformation, RestTemplate restTemplate) {
         this.pingService = pingService;
         this.clientInformation = clientInformation;
         this.restTemplate = restTemplate;
     }
 
-    public byte[] serve(ImageMode imageMode, String chapterHash, String fileName) {
+    public byte[] download(ImageMode imageMode, String chapterHash, String fileName) {
         String imageServer = pingService.getLastPingResponse().getImageServer();
 
         URI serverSideUri = UriComponentsBuilder

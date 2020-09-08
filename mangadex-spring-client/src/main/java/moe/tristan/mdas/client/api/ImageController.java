@@ -1,38 +1,47 @@
 package moe.tristan.mdas.client.api;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import moe.tristan.mdas.api.image.ImageMode;
-import moe.tristan.mdas.client.service.image.ImageProxyService;
+import moe.tristan.mdas.client.service.image.ImageService;
+import moe.tristan.mdas.client.service.security.ImageRequestReferrerValidator;
 
 @RestController
 public class ImageController {
 
-    private final ImageProxyService imageProxyService;
+    private final ImageService imageService;
+    private final ImageRequestReferrerValidator imageRequestReferrerValidator;
 
-    public ImageController(ImageProxyService imageProxyService) {
-        this.imageProxyService = imageProxyService;
+    public ImageController(ImageService imageService, ImageRequestReferrerValidator imageRequestReferrerValidator) {
+        this.imageService = imageService;
+        this.imageRequestReferrerValidator = imageRequestReferrerValidator;
     }
 
     @GetMapping("/{token}/{image-mode}/{chapterHash}/{fileName}")
     public byte[] tokenizedImage(
         @PathVariable String token,
-        @PathVariable("image-mode") ImageMode imageMode,
+        @PathVariable("image-mode") String imageMode,
         @PathVariable String chapterHash,
-        @PathVariable String fileName
+        @PathVariable String fileName,
+        HttpServletRequest request
     ) {
-        return imageProxyService.serve(token, imageMode, chapterHash, fileName);
+        imageRequestReferrerValidator.validate(request);
+        return imageService.serve(token, ImageMode.fromHttpPath(imageMode), chapterHash, fileName);
     }
 
     @GetMapping("/{image-mode}/{chapterHash}/{fileName}")
     public byte[] unTokenizedImage(
-        @PathVariable("image-mode") ImageMode imageMode,
+        @PathVariable("image-mode") String imageMode,
         @PathVariable String chapterHash,
-        @PathVariable String fileName
+        @PathVariable String fileName,
+        HttpServletRequest request
     ) {
-        return imageProxyService.serve(imageMode, chapterHash, fileName);
+        imageRequestReferrerValidator.validate(request);
+        return imageService.serve(ImageMode.fromHttpPath(imageMode), chapterHash, fileName);
     }
 
 }

@@ -3,14 +3,15 @@ package moe.tristan.mdas.client.service.image;
 import org.springframework.stereotype.Service;
 
 import moe.tristan.mdas.api.image.ImageMode;
+import moe.tristan.mdas.client.service.cache.ImageCacheService;
 
 @Service
-public class ImageProxyService {
+public class ImageService {
 
-    private final ImageFetchingService imageFetchingService;
+    private final ImageCacheService imageCacheService;
 
-    public ImageProxyService(ImageFetchingService imageFetchingService) {
-        this.imageFetchingService = imageFetchingService;
+    public ImageService(ImageCacheService imageCacheService) {
+        this.imageCacheService = imageCacheService;
     }
 
     public byte[] serve(String token, ImageMode imageMode, String chapterHash, String fileName) {
@@ -19,7 +20,7 @@ public class ImageProxyService {
     }
 
     public byte[] serve(ImageMode imageMode, String chapterHash, String fileName) {
-        return imageFetchingService.serve(imageMode, chapterHash, fileName);
+        return imageCacheService.load(imageMode, chapterHash, fileName);
     }
 
 }

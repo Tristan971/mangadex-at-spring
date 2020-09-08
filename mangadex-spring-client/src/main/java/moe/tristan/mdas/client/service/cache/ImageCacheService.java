@@ -15,7 +15,7 @@ public class ImageCacheService {
     }
 
     public byte[] load(ImageMode mode, String chapter, String file) {
-        return new byte[0];
+        return upstreamImageFetcher.download(mode, chapter, file);
     }
 
 }

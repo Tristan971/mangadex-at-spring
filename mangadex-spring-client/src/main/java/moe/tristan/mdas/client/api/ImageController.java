@@ -16,7 +16,10 @@ public class ImageController {
     private final ImageService imageService;
     private final ImageRequestReferrerValidator imageRequestReferrerValidator;
 
-    public ImageController(ImageService imageService, ImageRequestReferrerValidator imageRequestReferrerValidator) {
+    public ImageController(
+        ImageService imageService,
+        ImageRequestReferrerValidator imageRequestReferrerValidator
+    ) {
         this.imageService = imageService;
         this.imageRequestReferrerValidator = imageRequestReferrerValidator;
     }

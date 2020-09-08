@@ -42,11 +42,12 @@ public class UpstreamImageFetcher {
 
         URI serverSideUri = UriComponentsBuilder
             .fromHttpUrl(imageServer)
-            .path(IMAGE_MODE_PATHS.get(imageMode))
-            .path(chapterHash)
-            .path(fileName)
-            .build()
-            .toUri();
+            .path("{mode}/{chapter}/{file}")
+            .build(
+                IMAGE_MODE_PATHS.get(imageMode),
+                chapterHash,
+                fileName
+            );
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "https://mangadex.org");

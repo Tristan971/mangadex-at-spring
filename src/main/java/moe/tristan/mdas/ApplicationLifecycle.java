@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
-import moe.tristan.mdas.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.configuration.ssl.KeyStoreInitializer;
 import moe.tristan.mdas.service.ping.PingService;
 import moe.tristan.mdas.service.stop.StopService;
@@ -24,20 +23,17 @@ public class ApplicationLifecycle implements SmartLifecycle {
     private final PingService pingService;
     private final StopService stopService;
     private final KeyStoreInitializer keyStoreInitializer;
-    private final int pingFrequencySeconds;
 
     private final AtomicBoolean running;
 
     public ApplicationLifecycle(
         PingService pingService,
         StopService stopService,
-        KeyStoreInitializer keyStoreInitializer,
-        ClientConfigurationProperties clientConfigurationProperties
+        KeyStoreInitializer keyStoreInitializer
     ) {
         this.pingService = pingService;
         this.stopService = stopService;
         this.keyStoreInitializer = keyStoreInitializer;
-        this.pingFrequencySeconds = clientConfigurationProperties.getPingFrequencySeconds();
         this.running = new AtomicBoolean(false);
     }
 
@@ -56,8 +52,8 @@ public class ApplicationLifecycle implements SmartLifecycle {
                     LOGGER.error("Could not ping control server.", e);
                 }
             },
-            pingFrequencySeconds,
-            pingFrequencySeconds,
+            0,   // initial delay
+            15,  // executed every X seconds hereafter
             TimeUnit.SECONDS
         );
     }

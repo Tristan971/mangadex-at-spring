@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import moe.tristan.mdas.configuration.ClientConfigurationProperties;
-import moe.tristan.mdas.configuration.ServerConfigurationProperties;
+import moe.tristan.mdas.mangadex.Constants;
 import moe.tristan.mdas.mangadex.ping.PingRequest;
 import moe.tristan.mdas.mangadex.ping.PingResponse;
 import moe.tristan.mdas.mangadex.ping.TlsData;
@@ -32,15 +32,11 @@ public class PingService {
     private TlsData lastTlsData;
     private PingResponse lastPingResponse;
 
-    public PingService(
-        RestTemplate restTemplate,
-        ServerConfigurationProperties serverConfigurationProperties,
-        ClientConfigurationProperties clientConfigurationProperties
-    ) {
+    public PingService(RestTemplate restTemplate, ClientConfigurationProperties clientConfigurationProperties) {
         this.restTemplate = restTemplate;
         this.clientConfigurationProperties = clientConfigurationProperties;
         this.pingEndpoint = UriComponentsBuilder
-            .fromUri(serverConfigurationProperties.getControlServerUrl())
+            .fromHttpUrl(Constants.MANGADEX_API_URL)
             .path("/ping")
             .build()
             .toUri();
@@ -53,9 +49,9 @@ public class PingService {
         PingRequest request = PingRequest
             .builder()
             .secret(clientConfigurationProperties.getSecret())
-            .port(0)
-            .diskSpace(0)
-            .networkSpeed(0)
+            .port(clientConfigurationProperties.getPort())
+            .diskSpace(clientConfigurationProperties.getMaxCacheSizeMegabytes())
+            .networkSpeed(clientConfigurationProperties.getMaxNetworkSpeedKilobytesPerSecond())
             .tlsCreatedAt(lastTlsCreatedAt)
             .build();
 

@@ -16,10 +16,7 @@ import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(value = {
-    ClientConfigurationProperties.class,
-    ServerConfigurationProperties.class
-})
+@EnableConfigurationProperties(ClientConfigurationProperties.class)
 @Import(WebRequestsLoggingConfiguration.class)
 public class ApplicationConfiguration implements WebMvcConfigurer {
 

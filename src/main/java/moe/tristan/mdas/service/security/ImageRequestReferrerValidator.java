@@ -7,7 +7,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Component
 public class ImageRequestReferrerValidator {
@@ -28,15 +30,28 @@ public class ImageRequestReferrerValidator {
             URI referrerUri = new URI(referrer);
             String host = referrerUri.getHost();
             if (host == null) {
-                throw new IllegalArgumentException("Invalid referrer didn't have a host for " + referrer);
+                throw new InvalidReferrerHeaderException("Invalid referrer didn't have a host for " + referrer);
             }
 
             if (!MANGADEX_HOST_MATCHER.matcher(host).find()) {
-                throw new IllegalArgumentException("Invalid Referrer header had unexpected host for " + referrer);
+                throw new InvalidReferrerHeaderException("Invalid Referrer header had unexpected host for " + referrer);
             }
         } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("Invalid Referrer header was present but not a URI for " + referrer, e);
+            throw new InvalidReferrerHeaderException("Invalid Referrer header was present but not a URI for " + referrer, e);
         }
+    }
+
+    @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "Invalid referrer header.")
+    static final class InvalidReferrerHeaderException extends IllegalArgumentException {
+
+        public InvalidReferrerHeaderException(String s) {
+            super(s);
+        }
+
+        public InvalidReferrerHeaderException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
     }
 
 }

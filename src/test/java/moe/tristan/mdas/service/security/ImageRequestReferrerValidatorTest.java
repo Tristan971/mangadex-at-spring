@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import moe.tristan.mdas.service.security.ImageRequestReferrerValidator.InvalidReferrerHeaderException;
+
 @SpringBootTest(classes = ImageRequestReferrerValidator.class)
 class ImageRequestReferrerValidatorTest {
 
@@ -40,7 +42,7 @@ class ImageRequestReferrerValidatorTest {
     void failsOnInvalidReferrers(String referrer) {
         var request = requestWithReferrer(referrer);
         assertThatThrownBy(() -> imageRequestReferrerValidator.validate(request))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(InvalidReferrerHeaderException.class)
             .hasMessageContaining(referrer);
     }
 

@@ -74,9 +74,8 @@ public class ImageCacheService {
     }
 
     private byte[] loadCached(CachedImageEntity cachedImage) throws IOException {
-        String[] pathFragments = cachedImage.getId().split("[/\\\\]");
-        String inCachePath = String.join(File.pathSeparator, pathFragments);
-        Path cachedImagePath = Path.of(inCachePath);
+        String inCachePath = cachedImage.getId().replaceAll("_", File.separator);
+        Path cachedImagePath = cacheDirectory.resolve(inCachePath);
 
         LOGGER.debug("Loading image from: {}", cachedImagePath);
         return Files.readAllBytes(cachedImagePath);
@@ -89,12 +88,16 @@ public class ImageCacheService {
         byte[] imageBytes = upstreamImageFetcher.download(imageRequest);
         CompletableFuture.runAsync(() -> {
             try {
+                Path directory = imagePath.toAbsolutePath().getParent();
+                if (!Files.exists(directory)) {
+                    Files.createDirectories(directory);
+                }
                 Files.write(imagePath, imageBytes);
                 CachedImageEntity imageEntity = new CachedImageEntity(imageRequest.getUniqueIdentifier(), imageBytes.length);
-                cachedImageRepository.save(imageEntity);
+                cachedImageRepository.saveAndFlush(imageEntity);
                 LOGGER.info("Committed {} to cache as {}", imageRequest, imagePath);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Cannot commit image {} to cache!", imageRequest, e);
             }
         });
 

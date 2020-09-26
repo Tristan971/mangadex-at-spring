@@ -33,4 +33,9 @@ abstract class AbstractImageRequest {
         return String.format("%s_%s_%s", getMode().name(), getChapter(), getFile());
     }
 
+    @Override
+    public String toString() {
+        return getUniqueIdentifier();
+    }
+
 }

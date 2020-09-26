@@ -6,14 +6,14 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(schema = "mangadex", name = "images")
+@Table(schema = "MANGADEX", name = "IMAGES")
 public class CachedImageEntity {
 
     @Id
-    @Column(name = "id", unique = true, length = 512)
+    @Column(name = "ID", unique = true, length = 512)
     private String id;
 
-    @Column(name = "sizeInBytes")
+    @Column(name = "SIZEINBYTES")
     private long sizeInBytes;
 
     protected CachedImageEntity() {

@@ -6,8 +6,7 @@ RUN dnf makecache \
     libsodium \
     htop \
     procps-ng \
-  && dnf clean -y all \
-  && rm -rfv /var/lib/{dnf,rpm}
+  && dnf clean -y all
 
 WORKDIR /mangahome
 ADD target/mangadex-at-spring.jar .

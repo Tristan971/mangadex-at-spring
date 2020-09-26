@@ -1,22 +1,26 @@
 package moe.tristan.mdas.api;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import moe.tristan.mdas.configuration.ClientInformation;
 
 @RestController
 public class HelloController {
 
-    private final ClientInformation clientInformation;
+    private final String applicationName;
+    private final String applicationVersion;
 
-    public HelloController(ClientInformation clientInformation) {
-        this.clientInformation = clientInformation;
+    public HelloController(
+        @Value("${spring.application.name}") String applicationName,
+        @Value("${spring.application.version}") String applicationVersion
+    ) {
+        this.applicationName = applicationName;
+        this.applicationVersion = applicationVersion;
     }
 
     @GetMapping("/")
-    public ClientInformation hello() {
-        return clientInformation;
+    public String hello() {
+        return applicationName + " " + applicationVersion;
     }
 
 }

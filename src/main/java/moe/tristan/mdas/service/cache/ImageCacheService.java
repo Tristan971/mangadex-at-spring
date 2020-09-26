@@ -10,9 +10,12 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import moe.tristan.mdas.model.CacheHintMode;
 import moe.tristan.mdas.model.ImageRequest;
+import moe.tristan.mdas.model.ImageResponse;
 import moe.tristan.mdas.service.fetch.UpstreamImageFetcher;
 
 @Component
@@ -34,7 +37,7 @@ public class ImageCacheService {
         this.cacheDirectory = verifyCacheDirectory(cacheDirectory);
     }
 
-    public byte[] load(ImageRequest imageRequest) {
+    public ImageResponse load(ImageRequest imageRequest) {
         String imageId = imageRequest.getUniqueIdentifier();
         Optional<CachedImageEntity> cachedImageSearch = cachedImageRepository.findById(imageId);
 
@@ -42,7 +45,7 @@ public class ImageCacheService {
             LOGGER.info("Cache hit for {}", imageRequest);
             CachedImageEntity cachedImage = cachedImageSearch.get();
             try {
-                return loadCached(cachedImage);
+                return ImageResponse.of(loadCached(cachedImage), CacheHintMode.HIT);
             } catch (IOException e) {
                 LOGGER.error("Cache fail for: {} - UID: {}", imageRequest, cachedImage.getId(), e);
             }
@@ -50,7 +53,13 @@ public class ImageCacheService {
             LOGGER.info("Cache miss for {}", imageRequest);
         }
 
-        return loadUncached(imageRequest);
+        ResponseEntity<byte[]> upstreamResponse = loadUncached(imageRequest);
+        return ImageResponse
+            .builder()
+            .bytes(upstreamResponse.getBody())
+            .cacheHint(CacheHintMode.MISS)
+            .upstreamHeaders(upstreamResponse.getHeaders())
+            .build();
     }
 
     Path verifyCacheDirectory(String cacheDirectory) throws IOException {
@@ -81,19 +90,23 @@ public class ImageCacheService {
         return Files.readAllBytes(cachedImagePath);
     }
 
-    private byte[] loadUncached(ImageRequest imageRequest) {
+    private ResponseEntity<byte[]> loadUncached(ImageRequest imageRequest) {
         String inCachePath = String.join(File.separator, imageRequest.getIdentifiers());
         Path imagePath = cacheDirectory.resolve(inCachePath);
 
-        byte[] imageBytes = upstreamImageFetcher.download(imageRequest);
+        ResponseEntity<byte[]> upstreamResponse = upstreamImageFetcher.download(imageRequest);
         CompletableFuture.runAsync(() -> {
             try {
                 Path directory = imagePath.toAbsolutePath().getParent();
                 if (!Files.exists(directory)) {
                     Files.createDirectories(directory);
                 }
-                Files.write(imagePath, imageBytes);
-                CachedImageEntity imageEntity = new CachedImageEntity(imageRequest.getUniqueIdentifier(), imageBytes.length);
+                Files.write(imagePath, upstreamResponse.getBody());
+                //noinspection ConstantConditions
+                CachedImageEntity imageEntity = new CachedImageEntity(
+                    imageRequest.getUniqueIdentifier(),
+                    upstreamResponse.getBody().length
+                );
                 cachedImageRepository.saveAndFlush(imageEntity);
                 LOGGER.info("Committed {} to cache as {}", imageRequest, imagePath);
             } catch (IOException e) {
@@ -101,7 +114,7 @@ public class ImageCacheService {
             }
         });
 
-        return imageBytes;
+        return upstreamResponse;
     }
 
 }

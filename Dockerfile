@@ -1,8 +1,13 @@
-FROM fedora:33 as builder
+FROM fedora:33
 
-RUN dnf makecache && dnf install -y \
-  java-latest-openjdk \
-  libsodium
+RUN dnf makecache \
+  && dnf install -y \
+    java-latest-openjdk \
+    libsodium \
+    htop \
+    procps-ng \
+  && dnf clean -y all \
+  && rm -rfv /var/lib/{dnf,rpm}
 
 WORKDIR /mangahome
 ADD target/mangadex-at-spring.jar .

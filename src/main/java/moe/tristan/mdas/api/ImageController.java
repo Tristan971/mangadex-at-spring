@@ -18,6 +18,7 @@ import moe.tristan.mdas.model.ImageRequest;
 import moe.tristan.mdas.model.ImageResponse;
 import moe.tristan.mdas.service.cache.ImageCacheService;
 import moe.tristan.mdas.service.security.ImageRequestReferrerValidator;
+import moe.tristan.mdas.service.security.ImageTokenValidator;
 
 @RestController
 public class ImageController {
@@ -25,10 +26,16 @@ public class ImageController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageController.class);
 
     private final ImageCacheService imageCacheService;
+    private final ImageTokenValidator imageTokenValidator;
     private final ImageRequestReferrerValidator imageRequestReferrerValidator;
 
-    public ImageController(ImageCacheService imageCacheService, ImageRequestReferrerValidator imageRequestReferrerValidator) {
+    public ImageController(
+        ImageCacheService imageCacheService,
+        ImageTokenValidator imageTokenValidator,
+        ImageRequestReferrerValidator imageRequestReferrerValidator
+    ) {
         this.imageCacheService = imageCacheService;
+        this.imageTokenValidator = imageTokenValidator;
         this.imageRequestReferrerValidator = imageRequestReferrerValidator;
     }
 
@@ -44,7 +51,7 @@ public class ImageController {
         ImageMode mode = ImageMode.fromHttpPath(imageMode);
         ImageRequest imageRequest = ImageRequest.of(mode, chapterHash, fileName);
 
-        // todo: validate token
+        imageTokenValidator.validateToken(imageRequest, token);
 
         return serve(request, response, imageRequest);
     }

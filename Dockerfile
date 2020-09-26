@@ -1,16 +1,14 @@
-FROM openjdk:14 as builder
+FROM fedora:33 as builder
 
-WORKDIR /mdas
-COPY target/mangadex-at-spring.jar .
-RUN java -Djarmode=layertools -jar mangadex-at-spring.jar extract
-RUN rm mangadex-at-spring.jar
+RUN dnf makecache && dnf install -y \
+  java-latest-openjdk \
+  libsodium
 
-FROM openjdk:14
+WORKDIR /mangahome
+ADD target/mangadex-at-spring.jar .
 
-WORKDIR /mdas
-COPY --from=builder /mdas/application/ ./
-COPY --from=builder /mdas/dependencies/ ./
-COPY --from=builder /mdas/snapshot-dependencies/ ./
-COPY --from=builder /mdas/spring-boot-loader/ ./
+# Shenandoah should (probably, in most cases) be the best compromise
+# compared to ZGC specifically, and also compared to G1/Parallel/CMS
+ENV JAVA_TOOL_OPTIONS "-XX:+UseShenandoahGC"
 
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+ENTRYPOINT ["java", "-jar", "mangadex-at-spring.jar"]

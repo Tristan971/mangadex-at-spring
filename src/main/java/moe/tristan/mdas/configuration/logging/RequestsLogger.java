@@ -16,8 +16,8 @@ import org.springframework.http.client.ClientHttpResponse;
 
 public class RequestsLogger {
 
-    private static final String INCOMING = "⬅";
-    private static final String OUTGOING = "➡";
+    private static final String INCOMING = "<-";
+    private static final String OUTGOING = "->";
 
     private final Logger logger;
 

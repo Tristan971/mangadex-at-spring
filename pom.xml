@@ -72,7 +72,7 @@
     </build>
 
     <dependencies>
-        <!-- Spring -->
+        <!-- Spring web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -91,6 +91,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-json</artifactId>
         </dependency>
+
+        <!-- Spring monitoring -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -104,16 +106,53 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
-        <!-- Spring non-runtime -->
+        <!-- Persistence -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring misc-->
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Immutables -->
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+            <version>${immutables.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.treatwell</groupId>
+            <artifactId>immutables-styles</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <!-- BouncyCastle -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.58</version>
+        </dependency>
+
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -126,45 +165,6 @@
             </exclusions>
 
         </dependency>
-
-        <!-- Immutables -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.immutables</groupId>
-            <artifactId>value</artifactId>
-            <version>${immutables.version}</version>
-        </dependency>
-
-        <!-- BouncyCastle -->
-        <dependency>
-            <groupId>com.treatwell</groupId>
-            <artifactId>immutables-styles</artifactId>
-            <version>2.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.58</version>
-        </dependency>
-
-        <!-- H2 -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <name>Spring Milestones</name>
-            <id>spring-milestones</id>
-            <url>https://repo.spring.io/milestone</url>
-        </repository>
-    </repositories>
 
 </project>

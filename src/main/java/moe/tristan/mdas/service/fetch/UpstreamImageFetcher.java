@@ -15,8 +15,9 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import moe.tristan.mdas.mangadex.image.ImageMode;
 import moe.tristan.mdas.configuration.ClientInformation;
+import moe.tristan.mdas.mangadex.image.ImageMode;
+import moe.tristan.mdas.model.ImageRequest;
 import moe.tristan.mdas.service.ping.PingService;
 
 import io.micrometer.core.annotation.Timed;
@@ -40,16 +41,16 @@ public class UpstreamImageFetcher {
     }
 
     @Timed
-    public byte[] download(ImageMode imageMode, String chapterHash, String fileName) {
+    public byte[] download(ImageRequest imageRequest) {
         String imageServer = pingService.getLastPingResponse().getImageServer();
 
         URI serverSideUri = UriComponentsBuilder
             .fromHttpUrl(imageServer.trim())
             .path("/{mode}/{chapter}/{file}")
             .build(
-                IMAGE_MODE_PATHS.get(imageMode),
-                chapterHash,
-                fileName
+                IMAGE_MODE_PATHS.get(imageRequest.getMode()),
+                imageRequest.getChapter(),
+                imageRequest.getFile()
             );
 
         HttpHeaders headers = new HttpHeaders();

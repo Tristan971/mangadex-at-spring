@@ -1,7 +1,6 @@
 package moe.tristan.mdas.service.fetch;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +9,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import moe.tristan.mdas.mangadex.image.ImageMode;
 import moe.tristan.mdas.model.ImageRequest;
 import moe.tristan.mdas.service.ping.PingService;
 
@@ -18,11 +16,6 @@ import io.micrometer.core.annotation.Timed;
 
 @Service
 public class UpstreamImageFetcher {
-
-    private static final Map<ImageMode, String> IMAGE_MODE_PATHS = Map.of(
-        ImageMode.DATA, "/data",
-        ImageMode.DATA_SAVER, "/data_saver"
-    );
 
     private final PingService pingService;
     private final RestTemplate restTemplate;
@@ -37,15 +30,20 @@ public class UpstreamImageFetcher {
         String imageServer = pingService.getLastPingResponse().getImageServer();
 
         URI serverSideUri = UriComponentsBuilder
-            .fromHttpUrl(imageServer.trim())
-            .path("/{mode}/{chapter}/{file}")
+            .fromHttpUrl(imageServer)
+            .path("{mode}/{chapter}/{file}")
             .build(
-                IMAGE_MODE_PATHS.get(imageRequest.getMode()),
+                imageRequest.getMode().getUpstreamPath(),
                 imageRequest.getChapter(),
                 imageRequest.getFile()
             );
 
-        ResponseEntity<byte[]> response = restTemplate.getForEntity(serverSideUri, byte[].class);
+        ResponseEntity<byte[]> response;
+        try {
+            response = restTemplate.getForEntity(serverSideUri, byte[].class);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to fetch image from upstream: " + serverSideUri, e);
+        }
 
         if (!HttpStatus.OK.equals(response.getStatusCode())) {
             throw new HttpServerErrorException(response.getStatusCode(), "Upstream server returned non-200 answer!");

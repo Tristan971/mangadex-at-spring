@@ -9,10 +9,10 @@ import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import moe.tristan.mdas.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.model.CacheHintMode;
 import moe.tristan.mdas.model.ImageRequest;
 import moe.tristan.mdas.model.ImageResponse;
@@ -30,11 +30,11 @@ public class ImageCacheService {
     public ImageCacheService(
         CachedImageRepository cachedImageRepository,
         UpstreamImageFetcher upstreamImageFetcher,
-        @Value("${mdah.client.cache.directory}") String cacheDirectory
+        ClientConfigurationProperties clientConfigurationProperties
     ) throws IOException {
         this.cachedImageRepository = cachedImageRepository;
         this.upstreamImageFetcher = upstreamImageFetcher;
-        this.cacheDirectory = verifyCacheDirectory(cacheDirectory);
+        this.cacheDirectory = verifyCacheDirectory(clientConfigurationProperties.getCache().getDirectory());
     }
 
     public ImageResponse load(ImageRequest imageRequest) {

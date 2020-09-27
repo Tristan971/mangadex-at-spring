@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ClientConfigurationProperties {
 
     private String secret;
+    private int gracefulShutdownSeconds;
     private int port;
     private int maxNetworkSpeedKilobytesPerSecond;
     private boolean verifyTokens;
@@ -81,6 +82,14 @@ public class ClientConfigurationProperties {
 
     public void setVerifyTokens(boolean verifyTokens) {
         this.verifyTokens = verifyTokens;
+    }
+
+    public int getGracefulShutdownSeconds() {
+        return gracefulShutdownSeconds;
+    }
+
+    public void setGracefulShutdownSeconds(int gracefulShutdownSeconds) {
+        this.gracefulShutdownSeconds = gracefulShutdownSeconds;
     }
 
     public Cache getCache() {

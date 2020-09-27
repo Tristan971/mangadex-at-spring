@@ -1,7 +1,9 @@
 package moe.tristan.mdas;
 
-import java.util.concurrent.Executors;
+import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
+
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -10,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
+import moe.tristan.mdas.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.configuration.ssl.KeyStoreInitializer;
 import moe.tristan.mdas.service.ping.PingService;
 import moe.tristan.mdas.service.stop.StopService;
@@ -18,22 +21,26 @@ import moe.tristan.mdas.service.stop.StopService;
 public class ApplicationLifecycle implements SmartLifecycle {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationLifecycle.class);
-    private static final ScheduledExecutorService PING_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private static final ScheduledExecutorService PING_SERVICE = newSingleThreadScheduledExecutor();
 
     private final PingService pingService;
     private final StopService stopService;
     private final KeyStoreInitializer keyStoreInitializer;
+    private final ClientConfigurationProperties clientConfigurationProperties;
 
     private final AtomicBoolean running;
+    private ScheduledFuture<?> pingDaemon;
 
     public ApplicationLifecycle(
         PingService pingService,
         StopService stopService,
-        KeyStoreInitializer keyStoreInitializer
+        KeyStoreInitializer keyStoreInitializer,
+        ClientConfigurationProperties clientConfigurationProperties
     ) {
         this.pingService = pingService;
         this.stopService = stopService;
         this.keyStoreInitializer = keyStoreInitializer;
+        this.clientConfigurationProperties = clientConfigurationProperties;
         this.running = new AtomicBoolean(false);
     }
 
@@ -44,7 +51,7 @@ public class ApplicationLifecycle implements SmartLifecycle {
         keyStoreInitializer.injectCertificates(pingService.getLastTlsData());
         running.set(true);
 
-        PING_SERVICE.scheduleAtFixedRate(
+        this.pingDaemon = PING_SERVICE.scheduleAtFixedRate(
             () -> {
                 try {
                     pingService.ping();
@@ -62,8 +69,16 @@ public class ApplicationLifecycle implements SmartLifecycle {
     public void stop() {
         LOGGER.info("Application is shutting down.");
         try {
-            stopService.stop();
-            LOGGER.info("Server acknowledged stop request! Shutting down...");
+            if (pingDaemon != null) {
+                pingDaemon.cancel(false);
+                stopService.stop();
+                LOGGER.info("Server acknowledged stop request! Shutting down...");
+                newSingleThreadScheduledExecutor().schedule(
+                    () -> LOGGER.info("Done waiting for graceful shutdown."),
+                    clientConfigurationProperties.getGracefulShutdownSeconds(),
+                    TimeUnit.SECONDS
+                ).get();
+            }
         } catch (Throwable e) {
             LOGGER.info("Failed graceful shutdown!", e);
         }

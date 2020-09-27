@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import moe.tristan.mdas.configuration.ClientConfigurationProperties;
 import moe.tristan.mdas.mangadex.image.ImageMode;
 import moe.tristan.mdas.model.ImageRequest;
 import moe.tristan.mdas.model.ImageResponse;
@@ -25,15 +26,18 @@ public class ImageController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageController.class);
 
+    private final ClientConfigurationProperties clientConfigurationProperties;
     private final ImageCacheService imageCacheService;
     private final ImageTokenValidator imageTokenValidator;
     private final ImageRequestReferrerValidator imageRequestReferrerValidator;
 
     public ImageController(
+        ClientConfigurationProperties clientConfigurationProperties,
         ImageCacheService imageCacheService,
         ImageTokenValidator imageTokenValidator,
         ImageRequestReferrerValidator imageRequestReferrerValidator
     ) {
+        this.clientConfigurationProperties = clientConfigurationProperties;
         this.imageCacheService = imageCacheService;
         this.imageTokenValidator = imageTokenValidator;
         this.imageRequestReferrerValidator = imageRequestReferrerValidator;
@@ -51,7 +55,9 @@ public class ImageController {
         ImageMode mode = ImageMode.fromHttpPath(imageMode);
         ImageRequest imageRequest = ImageRequest.of(mode, chapterHash, fileName);
 
-        imageTokenValidator.validateToken(imageRequest.getChapter(), token);
+        if (clientConfigurationProperties.isVerifyTokens()) {
+            imageTokenValidator.validateToken(imageRequest.getChapter(), token);
+        }
 
         return serve(request, response, imageRequest);
     }

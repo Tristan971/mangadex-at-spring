@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import moe.tristan.mdas.mangadex.image.ImageToken;
@@ -34,7 +35,7 @@ public class ImageTokenValidator {
 
     @Timed
     public void validateToken(String chapter, String token) {
-        byte[] tokenArray = Base64.getDecoder().decode(token);
+        byte[] tokenArray = Base64Variants.MODIFIED_FOR_URL.decode(token);
 
         if (tokenArray.length < (24 + 32)) {
             throw new InvalidTokenException(chapter, token, "Token was invalid (too short!)");

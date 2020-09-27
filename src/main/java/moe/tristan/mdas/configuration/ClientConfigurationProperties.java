@@ -11,6 +11,7 @@ public class ClientConfigurationProperties {
     private String secret;
     private int port;
     private int maxNetworkSpeedKilobytesPerSecond;
+    private boolean verifyTokens;
 
     private Cache cache;
 
@@ -72,6 +73,14 @@ public class ClientConfigurationProperties {
 
     public void setMaxNetworkSpeedKilobytesPerSecond(int maxNetworkSpeedKilobytesPerSecond) {
         this.maxNetworkSpeedKilobytesPerSecond = maxNetworkSpeedKilobytesPerSecond;
+    }
+
+    public boolean isVerifyTokens() {
+        return verifyTokens;
+    }
+
+    public void setVerifyTokens(boolean verifyTokens) {
+        this.verifyTokens = verifyTokens;
     }
 
     public Cache getCache() {

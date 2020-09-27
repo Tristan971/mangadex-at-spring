@@ -145,11 +145,16 @@
             <version>2.2.0</version>
         </dependency>
 
-        <!-- BouncyCastle -->
+        <!-- BouncyCastle + Libsodium (i.e.: crypto) -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>1.58</version>
+        </dependency>
+        <dependency>
+            <groupId>org.abstractj.kalium</groupId>
+            <artifactId>kalium</artifactId>
+            <version>0.8.0</version>
         </dependency>
 
         <!-- Test -->

@@ -51,7 +51,7 @@ public class ImageController {
         ImageMode mode = ImageMode.fromHttpPath(imageMode);
         ImageRequest imageRequest = ImageRequest.of(mode, chapterHash, fileName);
 
-        imageTokenValidator.validateToken(imageRequest, token);
+        imageTokenValidator.validateToken(imageRequest.getChapter(), token);
 
         return serve(request, response, imageRequest);
     }
